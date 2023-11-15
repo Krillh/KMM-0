@@ -1,0 +1,238 @@
+little endian
+
+KMM0 instruction layout
+
+0x00 NOP
+0x01
+0x02 #JMP
+0x03 #JMP_C
+0x04 #MATH
+0x05 #STACK
+0x06 #IO
+0x07 #MEMORY
+0x08 
+0x09 
+0x0a 
+0x0b 
+0x0c 
+0x0d 
+0x0e 
+0x0f 
+0x10 MOV reg <- reg						━┓
+0x11 MOV reg <- 4br(1); reg <- 4br(1)	 ┃ compact
+0x12 MOV 4br(1) <- reg; 4br(1) <- reg	 ┃ data
+0x13 MOV 4br <- 4br						 ┃ transfer
+0x14 CONST const_8 -> reg				 ┃ ops
+0x15 CONST const_16 -> reg				 ┃
+0x16 CONST const_32 -> reg				━┛
+0x17 
+0x18 
+0x19 
+0x1a 
+0x1b 
+0x1c 
+0x1d 
+0x1e 
+0x1f 
+0x20 SET_ZF				━┓
+0x21 CLR_ZF				 ┃ flag
+0x22 SET_CF				 ┃ control
+0x23 CLR_CF				 ┃ ops
+0x24 INT_ENABLE			 ┃
+0x25 INT_DISABLE		━┛
+0x26
+0x27
+0x28
+0x29
+0x2a
+0x2b
+0x2c MOV r1 -> r0			━┓
+0x2d MOV r0 -> r1			 ┃ compact
+0x2e MOV r2 -> r0			 ┃ math
+0x2f MOV r2 -> r1			 ┃ ops
+0x30 ADD r0 + r1 -> r2		 ┃
+0x31 ADDc r0 + r1 -> r2		 ┃
+0x32 SUB r0 - r1 -> r2		 ┃
+0x33 SUBb r0 - r1 -> r2		 ┃
+0x34 MUL r0 * r1 -> r2		 ┃
+0x35 DIV r0 / r1 -> r2		 ┃
+0x36 AND r0 & r1 -> r2		 ┃
+0x37 OR  r0 | r1 -> r2		 ┃
+0x38 XOR r0 ^ r1 -> r2		 ┃
+0x39 NOT ! r0 -> r2			 ┃
+0x3a REM r0 \% r1 -> r2		━┛
+0x3b 
+0x3c
+0x3d
+0x3e
+0x3f
+
+
+...
+0xfe HALT_AND_EXIT
+0xff #[DEBUG]
+
+	#JMP (0x02)
+0x00 JMP const_24
+0x01 JMP const_32
+0x02 JMP_OFFSET +const_8
+0x03 JMP_OFFSET -const_8
+0x04 JMP_OFFSET +const_16
+0x05 JMP_OFFSET -const_16
+0x06 JMP_OFFSET +const_32
+0x07 JMP_OFFSET -const_32
+
+	#JMP_C (0x03)
+0x00 JC const_24
+0x01 JC const_32
+0x02 JC_OFFSET +const_8
+0x03 JC_OFFSET -const_8
+0x04 JC_OFFSET +const_16
+0x05 JC_OFFSET -const_16
+0x06 JC_OFFSET +const_32
+0x07 JC_OFFSET -const_32
+0x08 JNC const_24
+0x09 JNC const_32
+0x0a JNC_OFFSET +const_8
+0x0b JNC_OFFSET -const_8
+0x0c JNC_OFFSET +const_16
+0x0d JNC_OFFSET -const_16
+0x0e JNC_OFFSET +const_32
+0x0f JNC_OFFSET -const_32
+0x10 JZ const_24
+0x11 JZ const_32
+0x12 JZ_OFFSET +const_8
+0x13 JZ_OFFSET -const_8
+0x14 JZ_OFFSET +const_16
+0x15 JZ_OFFSET -const_16
+0x16 JZ_OFFSET +const_32
+0x17 JZ_OFFSET -const_32
+0x18 JNZ const_24
+0x19 JNZ const_32
+0x1a JNZ_OFFSET +const_8
+0x1b JNZ_OFFSET -const_8
+0x1c JNZ_OFFSET +const_16
+0x1d JNZ_OFFSET -const_16
+0x1e JNZ_OFFSET +const_32
+0x1f JNZ_OFFSET -const_32
+
+
+	#MATH (0x04)
+0x00 ADD reg + reg -> reg
+0x01 ADD zpr + reg -> reg
+0x02 INC reg += 1
+0x03 ADD reg + reg -> zpr
+0x04 ADD reg + zpr -> zpr
+0x05 ADD zpr + zpr -> zpr
+
+0x06 ADDC reg +c reg -> reg
+0x07 ADDC zpr +c reg -> reg
+0x08 INC reg += 4
+0x09 ADDC reg +c reg -> zpr
+0x0a ADDC reg +c zpr -> zpr
+0x0b ADDC zpr +c zpr -> zpr
+
+0x0c SUB reg - reg -> reg
+0x0d SUB zpr - reg -> reg
+0x0e SUB reg - zpr -> reg
+0x0f SUB reg - reg -> zpr
+0x10 SUB reg - zpr -> zpr
+0x11 SUB zpr - zpr -> zpr
+
+0x12 SUBB reg -b reg -> reg
+0x13 SUBB zpr -b reg -> reg
+0x14 SUBB reg -b zpr -> reg
+0x15 SUBB reg -b reg -> zpr
+0x16 SUBB reg -b zpr -> zpr
+0x17 SUBB zpr -b zpr -> zpr
+
+0x18 MUL reg * reg -> reg
+0x19 MUL zpr * reg -> reg
+0x1a MUL reg * reg -> zpr
+0x1b MUL reg * zpr -> zpr
+0x1c MUL zpr * zpr -> zpr
+
+0x1d DIV reg / reg -> reg
+0x1e DIV zpr / reg -> reg
+0x1f DIV reg / zpr -> reg
+0x20 DIV reg / reg -> zpr
+0x21 DIV reg / zpr -> zpr
+0x22 DIV zpr / zpr -> zpr
+
+0x23 AND reg & reg -> reg
+0x24 AND zpr & reg -> reg
+0x25 AND reg & reg -> zpr
+0x26 AND reg & zpr -> zpr
+0x27 AND zpr & zpr -> zpr
+
+0x28 OR reg | reg -> reg
+0x29 OR zpr | reg -> reg
+0x2a OR reg | reg -> zpr
+0x2b OR reg | zpr -> zpr
+0x2c OR zpr | zpr -> zpr
+
+0x2d XOR reg & reg -> reg
+0x2e XOR zpr & reg -> reg
+0x2f XOR reg & reg -> zpr
+0x30 XOR reg & zpr -> zpr
+0x31 XOR zpr & zpr -> zpr
+
+0x32 NOT !reg -> reg
+0x33 NOT !zpr -> reg
+0x34 NOT !reg -> zpr
+0x35 NOT !zpr -> zpr
+
+0x36 DEC reg -= 1
+0x37 DEC reg -= 4
+
+0x38 REM reg \% reg -> reg
+0x39 REM zpr \% reg -> reg
+0x3a REM reg \% zpr -> reg
+0x3b REM reg \% reg -> zpr
+0x3c REM reg \% zpr -> zpr
+0x3d REM zpr \% zpr -> zpr
+
+0x3e SHL reg << reg -> reg
+0x3f SHL zpr << reg -> reg
+0x40 SHL reg << const_8 -> reg
+0x41 SHL zpr << const_8 -> reg
+0x42 SHL reg << const_8 -> zpr
+0x43 SHL zpr << const_8 -> zpr
+
+0x44 SHR reg >> reg -> reg
+0x45 SHR zpr >> reg -> reg
+0x46 SHR reg >> const_8 -> reg
+0x47 SHR zpr >> const_8 -> reg
+0x48 SHR reg >> const_8 -> zpr
+0x49 SHR zpr >> const_8 -> zpr
+
+
+	#IO (0x06)
+0x00 PRINT_CHAR reg
+0x01 PRINT_CHAR const_8
+0x02 
+
+
+	#MEMORY (0x07)
+0x00 READ_8 [const_32] -> reg
+0x01 READ_16 [const_32] -> reg
+0x02 READ_32 [const_32] -> reg
+0x03 READ_8 [reg] -> reg
+0x04 READ_16 [reg] -> reg
+0x05 READ_32 [reg] -> reg
+0x06 WRITE_8 reg -> [const_32]
+0x07 WRITE_16 reg -> [const_32]
+0x08 WRITE_32 reg -> [const_32]
+0x09 WRITE_8 reg -> [reg]
+0x0a WRITE_16 reg -> [reg]
+0x0b WRITE_32 reg -> [reg]
+0x0c WRITE_8 const_8 -> [const_32]
+0x0d WRITE_8 const_8 -> [reg]
+0x0e WRITE_16 const_16 -> [const_32]
+0x0f WRITE_16 const_16 -> [reg]
+0x10 WRITE_32 const_32 -> [const_32]
+0x21 WRITE_32 const_32 -> [reg
+
+
+	#[DEBUG] (0xff)
+ 
